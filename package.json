@@ -5,8 +5,9 @@
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
+  "typings": "src/global.d.ts",
   "scripts": {
-    "format": "prettier --write .",
+    "format": "prettier . --write --config ./prettier.config.cjs",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
@@ -33,6 +34,7 @@
     "@vitejs/plugin-vue": "^5.0.3",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^12.0.0",
+    "browser-window": "^0.4.0",
     "electron": "^28.2.0",
     "electron-builder": "^24.9.1",
     "electron-vite": "^2.0.0",

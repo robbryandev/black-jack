@@ -1,6 +1,11 @@
 out
 dist
+node_modules
 pnpm-lock.yaml
 LICENSE.md
 tsconfig.json
 tsconfig.*.json
+prettier.config.cjs
+.eslintignore
+.history/
+**.svg
