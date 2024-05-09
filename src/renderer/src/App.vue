@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, onMounted } from "vue";
+
+import { handStore } from "./data/hands";
+import { gameStore } from "./data/game";
+
 import TopBar from './components/TopBar.vue';
 import CardRow from './components/CardRow.vue';
 
@@ -7,9 +11,6 @@ export type CardSettings = {
   path: string;
   visible: boolean;
 }
-
-const playerCards = ref<CardSettings[]>([]);
-const houseCards = ref<CardSettings[]>([]);
 
 function randomCard(): string {
   console.log("setting random card stuff")
@@ -55,13 +56,13 @@ function randomCard(): string {
 function newCard(visible: boolean, house: boolean) {
   console.log("adding new card")
   if (house) {
-    houseCards.value.push({
+    handStore.house.push({
       path: randomCard(),
       visible: visible
     });
 
   } else {
-    playerCards.value.push({
+    handStore.player.push({
       path: randomCard(),
       visible: visible
     });
@@ -72,12 +73,35 @@ defineComponent({
   name: "App"
 })
 
+onMounted(() => {
+  // house cards
+  newCard(false, true)
+  newCard(true, true)
+
+  // player cards
+  newCard(true, false)
+  newCard(true, false)
+})
+
 </script>
 
 <template>
   <main class="bg-green-950 w-full min-h-screen z-0">
     <TopBar />
-    <button class="px-2 py-1.5 bg-neutral-400 text-black" :onclick="() => { newCard(true, false) }">+</button>
-    <CardRow :card_list="playerCards" />
+    <div class="py-10 flex flex-col">
+      <CardRow :card_list="handStore.house" />
+      <div class="text-white font-semibold basis-64 flex flex-row justify-center">
+        <div
+          class="flex flex-col self-center justify-center align-middle gap-2 h-3/5 px-10 bg-neutral-900/90 border border-black rounded-2xl">
+          <button class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
+            if (!gameStore.done) {
+              newCard(true, false)
+            }
+          }">hit</button>
+          <button class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto">hold</button>
+        </div>
+      </div>
+      <CardRow :card_list="handStore.player" />
+    </div>
   </main>
 </template>
