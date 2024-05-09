@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watchEffect } from "vue";
 
 import { handStore } from "./data/hands";
 import { gameStore } from "./data/game";
@@ -90,13 +90,20 @@ onMounted(() => {
   resetGame()
 })
 
+watchEffect(() => {
+  console.log("playerScore: " + gameStore.playerScore)
+  if (gameStore.playerScore > 21) {
+    resetGame()
+  }
+})
+
 </script>
 
 <template>
   <main class="bg-green-950 w-full min-h-screen z-0">
     <TopBar />
     <div class="py-10 flex flex-col">
-      <CardRow :card_list="handStore.house" />
+      <CardRow :card_list="handStore.house" :house="true" />
       <div class="text-white font-semibold basis-64 flex flex-row justify-center">
         <div
           class="flex flex-col self-center justify-center align-middle gap-2 h-3/5 px-10 bg-neutral-900/90 border border-black rounded-2xl">
@@ -108,7 +115,7 @@ onMounted(() => {
           <button class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto">hold</button>
         </div>
       </div>
-      <CardRow :card_list="handStore.player" />
+      <CardRow :card_list="handStore.player" :house="false" />
     </div>
   </main>
 </template>

@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { defineComponent, onUpdated, ref } from 'vue';
 import type { CardSettings } from '@renderer/App.vue';
+
+import { gameStore } from '@renderer/data/game';
+
 import Card from './Card.vue';
 
 const props = defineProps<{
-  card_list: CardSettings[]
+  card_list: CardSettings[],
+  house: boolean
 }>();
 
 defineComponent({
@@ -33,6 +37,12 @@ onUpdated(() => {
       return previous + current;
     });
   })();
+
+  if (props.house) {
+    gameStore.houseScore = score.value;
+  } else {
+    gameStore.playerScore = score.value;
+  }
 })
 
 </script>
