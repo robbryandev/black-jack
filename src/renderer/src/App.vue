@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, onMounted } from "vue";
+import { onMounted } from "vue";
 
 import { handStore } from "./data/hands";
 import { gameStore } from "./data/game";
@@ -9,10 +9,11 @@ import CardRow from './components/CardRow.vue';
 
 export type CardSettings = {
   path: string;
+  score: number;
   visible: boolean;
 }
 
-function randomCard(): string {
+function randomCard(): { path: string, score: number } {
   console.log("setting random card stuff")
   const randNum = Math.floor(Math.random() * 12)
   const randSuit = Math.floor(Math.random() * 4)
@@ -50,30 +51,32 @@ function randomCard(): string {
       break;
   }
 
-  return `../assets/cards/PNG/card_${suit}_${value}.png`
+  return { path: `../assets/cards/PNG/card_${suit}_${value}.png`, score: randNum + 1 }
 }
 
 function newCard(visible: boolean, house: boolean) {
   console.log("adding new card")
+  const randCard = randomCard();
+
   if (house) {
     handStore.house.push({
-      path: randomCard(),
+      path: randCard.path,
+      score: randCard.score,
       visible: visible
     });
-
   } else {
     handStore.player.push({
-      path: randomCard(),
+      path: randCard.path,
+      score: randCard.score,
       visible: visible
     });
   }
 }
 
-defineComponent({
-  name: "App"
-})
+function resetGame() {
+  handStore.house = []
+  handStore.player = []
 
-onMounted(() => {
   // house cards
   newCard(false, true)
   newCard(true, true)
@@ -81,6 +84,10 @@ onMounted(() => {
   // player cards
   newCard(true, false)
   newCard(true, false)
+}
+
+onMounted(() => {
+  resetGame()
 })
 
 </script>
