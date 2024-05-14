@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: dev.robbryan.blackjack
 productName: blackjack
 directories:
   buildResources: build
