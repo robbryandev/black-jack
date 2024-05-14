@@ -15,10 +15,12 @@ defineComponent({
   "name": "CardRow"
 });
 
+const displayCards = ref<CardSettings[]>([]);
 const scoreVals = ref<number[]>([]);
 const score = ref<number>(0);
 
 onUpdated(() => {
+  displayCards.value = props.card_list;
   scoreVals.value = props.card_list.flatMap((fCard) => {
     // filter hidden cards and convert to number array
     if (!fCard.visible) {
@@ -51,9 +53,10 @@ onUpdated(() => {
   <div>
     <div class="flex flex-row flex-wrap justify-start">
       <div class="flex flex-col justify-center align-middle px-4">
-        <p class="text-white text-lg font-medium">{{ score }}</p>
+        <p v-if="(house ? gameStore.houseScore : gameStore.playerScore) > 0" class="text-white text-lg font-medium">{{
+          house ? gameStore.houseScore : gameStore.playerScore }}</p>
       </div>
-      <Card v-for="card in props.card_list" :visible="card.visible" :card_path="card.path" />
+      <Card v-for="card in displayCards" :visible="card.visible" :card_path="card.path" />
     </div>
   </div>
 </template>

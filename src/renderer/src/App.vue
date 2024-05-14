@@ -73,7 +73,16 @@ function newCard(visible: boolean, house: boolean) {
   }
 }
 
-function resetGame() {
+function resetGame(full: boolean) {
+  if (!full) {
+    gameStore.gameDone = true
+    return
+  }
+
+  gameStore.gameDone = false
+
+  gameStore.playerDone = false
+
   handStore.house = []
   handStore.player = []
 
@@ -86,14 +95,28 @@ function resetGame() {
   newCard(true, false)
 }
 
+
+async function houseTurn() {
+  gameStore.playerDone = true
+  handStore.house[0].visible = true
+  const houseInterval = setInterval(() => {
+    if (gameStore.houseScore <= gameStore.playerScore) {
+      newCard(true, true)
+    } else {
+      clearInterval(houseInterval)
+      gameStore.gameDone = true
+    }
+  }, 1_000)
+}
+
 onMounted(() => {
-  resetGame()
+  resetGame(false)
 })
 
 watchEffect(() => {
   console.log("playerScore: " + gameStore.playerScore)
-  if (gameStore.playerScore > 21) {
-    resetGame()
+  if (gameStore.playerScore >= 21) {
+    gameStore.gameDone = true
   }
 })
 
@@ -107,12 +130,19 @@ watchEffect(() => {
       <div class="text-white font-semibold basis-64 flex flex-row justify-center">
         <div
           class="flex flex-col self-center justify-center align-middle gap-2 h-3/5 px-10 bg-neutral-900/90 border border-black rounded-2xl">
-          <button class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
-            if (!gameStore.done) {
+          <button v-if="!gameStore.gameDone" class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
+            if (!gameStore.playerDone) {
               newCard(true, false)
             }
           }">hit</button>
-          <button class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto">hold</button>
+          <button v-if="!gameStore.gameDone" class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
+            if (!gameStore.playerDone) {
+              houseTurn()
+            }
+          }">hold</button>
+          <button v-if="gameStore.gameDone" class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
+            resetGame(true)
+          }">Start</button>
         </div>
       </div>
       <CardRow :card_list="handStore.player" :house="false" />

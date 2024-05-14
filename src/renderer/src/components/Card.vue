@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, onUpdated, ref } from 'vue';
 
 const props = defineProps<{ visible: boolean, card_path: string }>()
 
@@ -7,8 +7,24 @@ defineComponent({
   name: "Card"
 })
 
-const cardBack = ref(new URL(`../assets/cards/PNG/card_back.png`, import.meta.url).href)
-const cardFront = ref(new URL(`${props.card_path}`, import.meta.url).href)
+const path = import.meta.url;
+
+const cardBack = ref(new URL(`../assets/cards/PNG/card_back.png`, path).href)
+const displayCard = ref<string>()
+const cardFront = ref<string>()
+
+function updateDisplay() {
+  displayCard.value = props.card_path;
+  cardFront.value = new URL(`${displayCard.value}`, path).href
+}
+
+onMounted(() => {
+  updateDisplay()
+});
+
+onUpdated(() => {
+  updateDisplay()
+});
 </script>
 
 <template>
