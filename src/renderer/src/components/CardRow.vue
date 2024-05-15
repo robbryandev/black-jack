@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineComponent, onUpdated, ref } from 'vue';
-import type { CardSettings } from '@renderer/App.vue';
+import type { CardSettings } from './Game.vue';
 
 import { gameStore } from '@renderer/data/game';
 

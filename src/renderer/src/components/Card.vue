@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cards } from '@renderer/assets/cards';
 import { defineComponent, onMounted, onUpdated, ref } from 'vue';
 
 const props = defineProps<{ visible: boolean, card_path: string }>()
@@ -7,15 +8,11 @@ defineComponent({
   name: "Card"
 })
 
-const path = import.meta.url;
-
-const cardBack = ref(new URL(`../assets/cards/PNG/card_back.png`, path).href)
-const displayCard = ref<string>()
+const cardBack = cards["card_back"] as string
 const cardFront = ref<string>()
 
 function updateDisplay() {
-  displayCard.value = props.card_path;
-  cardFront.value = new URL(`${displayCard.value}`, path).href
+  cardFront.value = cards[props.card_path] as string;
 }
 
 onMounted(() => {
