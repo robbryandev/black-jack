@@ -53,7 +53,7 @@ onUpdated(() => {
   <div>
     <div class="flex flex-row flex-wrap justify-start">
       <div class="flex flex-col justify-center align-middle px-4">
-        <p v-if="(house ? gameStore.houseScore : gameStore.playerScore) > 0" class="text-white text-lg font-medium">{{
+        <p v-if="!gameStore.gameDone" class="text-white text-lg font-medium">{{
           house ? gameStore.houseScore : gameStore.playerScore }}</p>
       </div>
       <Card v-for="card in displayCards" :visible="card.visible" :card_path="card.path" />

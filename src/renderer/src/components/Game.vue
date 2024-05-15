@@ -2,9 +2,7 @@
 import { defineComponent, onMounted, watchEffect } from "vue";
 
 import { handStore } from "../data/hands";
-import { gameStore } from "../data/game";
-
-import { cards } from "@renderer/assets/cards";
+import { gameStore } from "../data/game"
 
 import CardRow from './CardRow.vue';
 
@@ -80,13 +78,21 @@ function newCard(visible: boolean, house: boolean) {
 
 function resetGame(full: boolean) {
   if (!full) {
-    gameStore.gameDone = true
+    gameStore.roundDone = true
     return
   }
 
-  gameStore.gameDone = false
+  if (gameStore.gameDone) {
+    gameStore.playerChips = gameStore.baseChips;
 
+    gameStore.gameDone = false;
+  }
+
+  gameStore.roundDone = false
   gameStore.playerDone = false
+
+  gameStore.playerScore = 0;
+  gameStore.houseScore = 0;
 
   handStore.house = []
   handStore.player = []
@@ -98,30 +104,42 @@ function resetGame(full: boolean) {
   // player cards
   newCard(true, false)
   newCard(true, false)
+
+  gameStore.playerChips -= gameStore.betChips;
 }
 
 async function houseTurn() {
   gameStore.playerDone = true
   handStore.house[0].visible = true
   const houseInterval = setInterval(() => {
-    if (gameStore.houseScore <= gameStore.playerScore) {
+    if (gameStore.houseScore < gameStore.playerScore) {
       newCard(true, true)
     } else {
       clearInterval(houseInterval)
-      gameStore.gameDone = true
+      if (gameStore.houseScore > 21) {
+        gameStore.playerChips += gameStore.betChips * 2
+      } else if (gameStore.houseScore === gameStore.playerScore) {
+        gameStore.playerChips += gameStore.betChips;
+      }
+      gameStore.roundDone = true;
     }
   }, 1_000)
 }
 
 onMounted(() => {
-  console.log(JSON.stringify(cards))
   resetGame(false)
 })
 
 watchEffect(() => {
   console.log("playerScore: " + gameStore.playerScore)
-  if (gameStore.playerScore >= 21) {
-    gameStore.gameDone = true
+  if (gameStore.playerScore >= 21 && !gameStore.roundDone) {
+    if (gameStore.playerScore === 21) {
+      gameStore.playerChips += gameStore.betChips * 2
+    }
+    resetGame(false)
+  }
+  if (gameStore.playerChips < gameStore.betChips && gameStore.roundDone) {
+    gameStore.gameDone = true;
   }
 })
 
@@ -132,22 +150,28 @@ watchEffect(() => {
     <CardRow :card_list="handStore.house" :house="true" />
     <div class="text-white font-semibold basis-64 flex flex-row justify-center">
       <div
-        class="flex flex-col self-center justify-center align-middle gap-2 h-3/5 px-10 bg-neutral-900/90 border border-black rounded-2xl">
-        <button v-if="!gameStore.gameDone" class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
+        class="flex flex-col self-center justify-center align-middle gap-2 h-3/5 px-10 bg-neutral-900/90 border border-black rounded-2xl"
+        v-if="!gameStore.roundDone">
+        <button class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
           if (!gameStore.playerDone) {
             newCard(true, false)
           }
         }">hit</button>
-        <button v-if="!gameStore.gameDone" class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
+        <button class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
           if (!gameStore.playerDone) {
             houseTurn()
           }
         }">hold</button>
-        <button v-if="gameStore.gameDone" class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
+      </div>
+      <div
+        class="flex flex-col self-center justify-center align-middle gap-2 h-3/5 px-10 bg-neutral-900/90 border border-black rounded-2xl"
+        v-else>
+        <button class="px-2 py-1.5 rounded-md bg-neutral-800 w-20 mx-auto" :onclick="() => {
           resetGame(true)
         }">Start</button>
       </div>
     </div>
     <CardRow :card_list="handStore.player" :house="false" />
+    <p class="text-white text-lg">${{ gameStore.playerChips }}</p>
   </div>
 </template>
